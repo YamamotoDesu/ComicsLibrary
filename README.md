@@ -28,3 +28,88 @@ apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 ```
 
 
+<img width="300" alt="スクリーンショット 2023-03-22 13 51 27" src="https://user-images.githubusercontent.com/47273077/226805203-9f82b5b7-0c46-4fa9-93d7-8dcef81fb679.png">
+
+```kt
+@Composable
+fun CharactersBottomNav(navController: NavHostController) {
+    BottomNavigation(elevation = 5.dp) {
+        val navBackStackEntry = navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry.value?.destination
+        
+        val iconLibrary = painterResource(id = R.drawable.ic_library)
+        val iconCollection = painterResource(id = R.drawable.ic_collection)
+
+        BottomNavigationItem(
+            selected = currentDestination?.route == Destination.Library.route,
+            onClick = { navController.navigate(Destination.Library.route) {
+                popUpTo(Destination.Library.route)
+                launchSingleTop = true
+            } },
+            icon = { Icon(painter = iconLibrary, contentDescription = null)},
+            label = { Text(text = Destination.Library.route)}
+        )
+        
+        BottomNavigationItem(
+            selected = currentDestination?.route == Destination.Collection.route,
+            onClick = { navController.navigate(Destination.Collection.route) {
+                launchSingleTop = true
+            } },
+            icon = { Icon(painter = iconCollection, contentDescription = null)},
+            label = { Text(text = Destination.Collection.route)}
+        )
+    }
+}
+```
+
+```kt
+sealed class Destination(val route: String) {
+    object Library: Destination("library")
+    object Collection: Destination("collection")
+    object CharacterDetail: Destination("character/{characterId}") {
+        fun createRoute(characterId: Int?) = "character/$characterId"
+    }
+}
+
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ComicsLibraryTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    val navController = rememberNavController()
+                    CharacterScaffold(navController = navController)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CharacterScaffold(navController: NavHostController) {
+    val scaffoldState = rememberScaffoldState()
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        bottomBar = { CharactersBottomNav(navController = navController)}
+    ) { paddingValues ->
+        NavHost(navController = navController, startDestination = Destination.Library.route) {
+            composable(Destination.Library.route) {
+                LibraryScreen()
+            }
+            composable(Destination.Collection.route) {
+                CollectionScreen()
+            }
+            composable(Destination.CharacterDetail.route) { navBackStackEntry ->
+
+
+            }
+        }
+    }
+}
+```
