@@ -250,4 +250,10 @@ data class CharacterComicsItems(
 
 ### API query
 
-
+MarvelAPI.kt
+```kt
+interface MarvelApi {
+    @GET("characters")
+    fun getCharacters(@Query("nameStartsWith") name: String): Call<CharactersApiResponse>
+}
+```
