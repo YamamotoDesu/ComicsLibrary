@@ -258,7 +258,7 @@ interface MarvelApi {
 }
 ```
 
-### Api service and standard parameters
+### [Api service and standard parameters](https://github.com/YamamotoDesu/ComicsLibrary/commit/14437962acd01badfedac9091fd5e1d8919b3f48)
 
 ApiService
 ```kt
@@ -306,3 +306,5 @@ fun getHash(timestamp: String, privateKey: String, publicKey: String): String {
         .padStart(32, '0')
 }
 ```
+
+## 
