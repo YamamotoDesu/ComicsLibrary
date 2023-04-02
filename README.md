@@ -257,3 +257,52 @@ interface MarvelApi {
     fun getCharacters(@Query("nameStartsWith") name: String): Call<CharactersApiResponse>
 }
 ```
+
+### Api service and standard parameters
+
+ApiService
+```kt
+object ApiService {
+    private const val BASE_URL = "http://gateway.marvel.com/v1/public/"
+
+    private fun getRetrofit(): Retrofit {
+        val ts = System.currentTimeMillis().toString()
+        val apiSecret = BuildConfig.MARVEL_SECRET
+        val apiKey = BuildConfig.MARVEL_KEY
+        val hash = getHash(ts, apiSecret, apiKey)
+
+        val clientInterceptor = Interceptor { chain ->
+            var request: Request = chain.request()
+            val url: HttpUrl = request.url.newBuilder()
+                .addQueryParameter("ts", ts)
+                .addQueryParameter("apikey", apiKey)
+                .addQueryParameter("hash", hash)
+                .build()
+            request = request.newBuilder().url(url).build()
+            chain.proceed(request)
+        }
+
+        val client = OkHttpClient.Builder().addInterceptor(clientInterceptor).build()
+        return  Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+    }
+
+    val api: MarvelApi = getRetrofit().create(MarvelApi::class.java)
+}
+```
+
+Util
+```kt
+fun getHash(timestamp: String, privateKey: String, publicKey: String): String {
+    val hashStr = timestamp + privateKey + publicKey
+    val md = MessageDigest.getInstance("MD5")
+    return BigInteger(
+        1,
+        md.digest(hashStr.toByteArray()))
+        .toString(16)
+        .padStart(32, '0')
+}
+```
