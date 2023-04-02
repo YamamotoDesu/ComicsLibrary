@@ -307,4 +307,49 @@ fun getHash(timestamp: String, privateKey: String, publicKey: String): String {
 }
 ```
 
-## 
+## [ApiRepo]()
+NetworkResult
+```kt
+sealed class NetworkResult<T>(
+    val data: T? = null,
+    val message: String? = null
+) {
+    class Initial<T>() : NetworkResult<T>()
+    class Success<T>(data: T) : NetworkResult<T>(data)
+    class Error<T>(message: String, data: T? = null) : NetworkResult<T>(data, message)
+    class Loading<T> : NetworkResult<T>()
+}
+```
+
+MarvelApiRepo
+```kt
+class MarvelApiRepo(private val api: MarvelApi) {
+    private val characters = MutableStateFlow<NetworkResult<CharactersApiResponse>>(NetworkResult.Initial())
+
+    fun query(query: String) {
+        characters.value = NetworkResult.Loading()
+        api.getCharacters(query)
+            .enqueue(object: Callback<CharactersApiResponse> {
+                override fun onResponse(
+                    call: Call<CharactersApiResponse>,
+                    response: Response<CharactersApiResponse>
+                ) {
+                    if (response.isSuccessful)
+                        response.body()?.let {
+                            characters.value = NetworkResult.Success(it)
+                        }
+                    else
+                        characters.value = NetworkResult.Error(response.message())
+                }
+
+                override fun onFailure(call: Call<CharactersApiResponse>, t: Throwable) {
+                    t.localizedMessage?.let {
+                        characters.value = NetworkResult.Error(it)
+                    }
+                    t.printStackTrace()
+                }
+
+            })
+    }
+}
+```
