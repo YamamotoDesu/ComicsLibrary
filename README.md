@@ -353,3 +353,48 @@ class MarvelApiRepo(private val api: MarvelApi) {
     }
 }
 ```
+
+## [AndroidManifest.xml configuration](https://github.com/YamamotoDesu/ComicsLibrary/commit/1a6a50171d0fcafd797ecf8cfb919303ec8ff42e)
+
+ComicsApplication.kt
+```kt
+@HiltAndroidApp
+class ComicsApplication: Application() {
+}
+```
+
+MainActivity.kt
+```kt
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            ComicsLibraryTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    val navController = rememberNavController()
+                    CharacterScaffold(navController = navController)
+                }
+            }
+        }
+    }
+}
+```
+
+AndroidManifest.xml
+```xml
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+
+    <application
+        android:name=".ComicsApplication"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+```
