@@ -398,3 +398,16 @@ AndroidManifest.xml
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
 ```
+
+## [Hilt implementation]()
+
+HiltModule.kt
+```kt
+@Module
+@InstallIn(ViewModelComponent::class)
+class HiltModule {
+    @Provides
+    fun provideApiRepo() = MarvelApiRepo(ApiService.api)
+}
+```
+
